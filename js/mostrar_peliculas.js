@@ -10,16 +10,32 @@ async function getMoviesData() {
     const moviesData = await moviesResponse.json();
     moviesInfo = moviesData;
 }
+let showSpinner = () => {
+    document.getElementById("spinner-wrapper").style.display = "block";
+}
+
+let hideSpinner = () => {
+    document.getElementById("spinner-wrapper").style.display = "none";
+}
+const mostrar = async () => {
+    showSpinner()
+    await getMoviesData()
+    inputSearch = (document.getElementById("inputBuscar").value).toLowerCase();
+    if (moviesInfo) {
+        MOVIES_LIST.classList.add("border", "border-secondary");
+    }
+    showMoviesList(moviesInfo, inputSearch);
+    hideSpinner()
+}
 
 document.addEventListener("DOMContentLoaded", () => {
-    getMoviesData();
-
-    SEARCH_BUTTON.addEventListener("click", () => {
-        inputSearch = (document.getElementById("inputBuscar").value).toLowerCase();
-        if (moviesInfo) {
-            MOVIES_LIST.classList.add("border", "border-secondary");
+    SEARCH_BUTTON.addEventListener("click", async () => {
+        mostrar()
+    })
+    inputBuscar.addEventListener("keydown", async(letra) => {
+        if (letra.key == "Enter") {
+            mostrar();
         }
-        showMoviesList(moviesInfo, inputSearch);
     })
 })
 
@@ -34,17 +50,17 @@ function voteToStars(vote) {
     averageVote = Math.round(vote / 2);
 
     starsRating = checkedStar.repeat(averageVote) + uncheckedStar.repeat(5 - averageVote);
-    
+
     return starsRating;
 }
 
 function showMoviesList(array, input) {
     let HTMLContentToAppend = ``;
 
-    for (const pelicula of array) {
+    for (let pelicula of array) {
         //Obtiene géneros de la película
         let genres = [];
-        for (const genre of pelicula.genres) {
+        for (let genre of pelicula.genres) {
             genres.push(genre.name);
         }
         let spreadGenres = genres.join(" - ");
